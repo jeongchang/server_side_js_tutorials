@@ -4,6 +4,8 @@
   "description": "Server side javascript tutorials",
   "main": "hello.js",
   "dependencies": {
+    "express": "^4.17.1",
+    "jade": "^1.11.0",
     "uglify-js": "^3.14.3",
     "underscore": "^1.13.1"
   },
