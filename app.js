@@ -7,7 +7,13 @@ app.set('views', './views');
 
 app.use(express.static('public'));
 
+app.get('/topic', function(req,res){
+
+	res.send(req.query.id);
+})
+
 app.get('/template', function(req, res){
+	//render()의 두번째 파라미터로 객체로 key, value를 넘겨주면 jade에서 key로 받을 수 있다.
 	res.render('temp', {time:Date(), _title:'Jade'});
 })
 app.get('/route', function(req, res){
