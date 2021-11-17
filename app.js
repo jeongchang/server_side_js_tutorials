@@ -8,8 +8,18 @@ app.set('views', './views');
 app.use(express.static('public'));
 
 app.get('/topic', function(req,res){
-
-	res.send(req.query.id);
+	var topics = [
+		'Javascript is...',
+		'Nodejs is..',
+		'Express is...'
+	];
+	var output = `
+		<a href="/topic?id=0">JavaScript</a><br>
+		<a href="/topic?id=1">Nodejs</a><br>
+		<a href="/topic?id=2">Express</a><br><br>
+		${topics[req.query.id]}
+	`;
+	res.send(output);
 })
 
 app.get('/template', function(req, res){
