@@ -5,10 +5,10 @@ var fs = require('fs');
 var mysql = require("mysql");
 const { values } = require("underscore");
 var conn = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "111111",
-  database: "o2",
+    host: "localhost",
+    user: "root",
+    password: "111111",
+    database: "o2",
 });
 
 conn.connect();
@@ -16,16 +16,38 @@ app.use(bodyParser.urlencoded({extended:false}));
 app.locals.pretty=true;
 app.set('views','./views_mysql');
 app.set('view engine', 'jade');
-app.get('/topic/new', function(req,res){
-    fs.readdir('data', function(err, files){
-        if(err){
-            console.error(err);
-            res.status(500).send('Internal Server Error');
-        }
-        res.render('new',{topics: files});
+
+app.get('/topic/add', function(req,res){
+    // fs.readdir('data', function(err, files){
+        //     if(err){
+            //         console.error(err);
+            //         res.status(500).send('Internal Server Error');
+            //     }
+            //     res.render('add',{topics: files});
+    // })
+    
+    var sql = 'SELECT id, title FROM topic';
+    conn.query(sql, function(err, topics, fields){
+        res.render('add', {topics:topics});
     })
     
 })
+
+app.post('/topic/add', function(req, res){
+    var title = req.body.title;
+    var description = req.body.description;
+    var author = req.body.author;
+    var sql = 'INSERT INTO topic(title, description, author) VALUES(?,?,?)';
+    conn.query(sql, [title, description, author], function(err, result, fields){
+        if(err){    
+            console.log(err);
+            res.status(500).send('Internal Server Error');
+        }else{
+            res.redirect('/topic/'+result.insertId);
+        }
+    })
+});
+
 app.get(['/topic', '/topic/:id'], function(req, res){
     
     var sql = 'SELECT id, title FROM topic';
@@ -38,6 +60,7 @@ app.get(['/topic', '/topic/:id'], function(req, res){
             conn.query(sql, [id], function(err, topic,fields){
                 if(err){
                     console.log(err);
+                    res.status(500).send('Internal Server Error');
                 }else{
                     res.render('view', {
                         topics:topics
@@ -50,29 +73,7 @@ app.get(['/topic', '/topic/:id'], function(req, res){
                 topics:topics
             });
         }
-    })
-
-    // fs.readdir('data', function(err,files){
-    //     if(err){
-    //         console.log(err);
-    //         res.status(500).send('Internal Server Error');
-    //     }
-
-    //     var id = req.params.id;
-
-    //     //id값이 있을때
-    //     if(id){   
-    //         fs.readFile('data/'+id, 'utf8', function(err,data){
-    //             if(err){
-    //                 console.log(err);
-    //                 res.status(500).send('Internal Server Error');
-    //             }
-    //             res.render('view', {topics:files, title:id, description:data});
-    //         })
-    //     }else{
-    //         res.render('view', {topics:files, title:'Welcome', description : 'Hello, JavaScript for server.'});
-    //     }
-    // })
+    });
 });
 
 // app.get('/topic', function(req,res){
@@ -101,17 +102,6 @@ app.get(['/topic', '/topic/:id'], function(req, res){
 //     })
 // });
 
-app.post('/topic', function(req, res){
-    console.log('post topic');
-    var title = req.body.title;
-    var description = req.body.description;
-    fs.writeFile('data/'+title, description, function(err){
-        if(err){
-            res.status(500).send('Internal Server Error');
-        }
-        res.redirect('/topic/'+title);
-    })
-});
 
 
 app.listen(3000, function(){
